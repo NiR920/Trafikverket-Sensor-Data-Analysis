@@ -170,7 +170,7 @@ Trafikverket-Sensor-Data-Analysis/
 │   └── README.md
 │
 ├── thesis/
-│   └── final-thesis.pdf
+│   └── thesis.pdf
 │
 └── requirements.txt
 ```
@@ -212,7 +212,7 @@ Database credentials, local configuration, and other secrets should **never** be
 **Course code:** MI4002  
 **Credits:** 15
 
-The final thesis PDF is currently included in this repository and will be organized under `thesis/` as part of the repository restructuring.
+The thesis PDF is currently included in this repository and will be organized under `thesis/thesis.pdf` as part of the repository restructuring.
 
 ## Technology Stack
 

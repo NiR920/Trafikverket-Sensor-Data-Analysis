@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+
+title: "Congestion and Traffic Flow Analysis Using Trafikverket Sensor Data"
+authors:
+  - family-names: Islam Razib
+    given-names: Md Nazmul
+  - family-names: Ariful Ahsan
+    given-names: Md
+version: "1.0.0"
+date-released: 2026-01-14
+repository-code: "https://github.com/NiR920/Trafikverket-Sensor-Data-Analysis"
+license: MIT
+abstract: >-
+  Reproducible data engineering and analytical workflow for historical
+  Trafikverket traffic sensor data, covering automated extraction, PostgreSQL
+  storage, congestion and traffic-flow analysis, speed-dependent CO2 modeling,
+  visualization, and an MCP prototype for AI-assisted database querying.

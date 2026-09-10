@@ -1,244 +1,158 @@
 # Congestion and Traffic Flow Analysis Using Trafikverket Sensor Data
 
-A reproducible data engineering and analytics framework for extracting, structuring, and analyzing historical traffic sensor data from the Swedish Transport Administration (Trafikverket).
+A reproducible research project for extracting, structuring, and analyzing historical traffic sensor data from the Swedish Transport Administration (Trafikverket), with a focus on congestion, traffic flow, and speed-dependent CO₂ emissions.
 
 This repository accompanies a **Master's thesis in Business Intelligence (Microdata Analysis) at Dalarna University**.
 
-## Overview
-
-Historical traffic sensor data can provide valuable insight into congestion, traffic flow, vehicle behavior, and environmental impacts. However, historical records available through Trafikverket's web interface are distributed in semi-structured formats and require preprocessing before they can be used effectively for large-scale analysis.
-
-This thesis develops an end-to-end workflow that transforms web-based traffic records into structured, analysis-ready data and applies that data to congestion and environmental analysis.
-
-The project combines:
-
-- automated traffic-data extraction using Python and Selenium
-- structured storage in PostgreSQL
-- congestion and traffic-flow analysis in Python
-- CO₂ emission assessment using speed-dependent COPERT-based modeling
-- visualization and dashboarding with Power BI
-- an MCP (Model Context Protocol) server prototype for AI-assisted querying of the historical traffic database
-
-## Research Questions
-
-The thesis addresses two main research questions:
+## Research questions
 
 1. **How can unstructured web-based traffic sensor data provided by Trafikverket be automatically extracted, structured, and stored to support reliable historical traffic analysis?**
 2. **How can extracted historical traffic data be analyzed to identify spatial and temporal congestion hotspots, and how can these traffic states be linked to traffic-related emissions?**
 
-## System Architecture
-
-The overall workflow can be summarized as:
+## Project architecture
 
 ```text
-                         Trafikverket
-                              │
-                              ▼
-                 Python Data Extraction
-                    Selenium / Pandas
-                              │
-                              ▼
-                        PostgreSQL
-                       traffic_data
-                              │
-             ┌────────────────┼────────────────┐
-             │                │                │
-             ▼                ▼                ▼
-        Python Analysis    Power BI          MCP Server
-             │                │                │
-             └────────────────┼────────────────┘
-                              ▼
-                  Congestion & CO₂ Analysis
-                              │
-                              ▼
-                    Research Findings
+Trafikverket historical web data
+              │
+              ▼
+     Python / Selenium scraper
+              │
+              ▼
+        PostgreSQL database
+         traffic_data table
+              │
+       ┌──────┼─────────┐
+       ▼      ▼         ▼
+   Analysis  Power BI   MCP prototype
+       │      │         │
+       └──────┼─────────┘
+              ▼
+   Congestion + traffic-flow
+       + CO₂ assessment
+              │
+              ▼
+        Thesis findings
 ```
 
-The extraction pipeline accepts user-provided Trafikverket URLs, retrieves traffic measurement data, parses and validates the extracted records, and stores them in PostgreSQL. The database then serves as the central source for the analytical components. The MCP prototype provides an additional interface for targeted, parameterized access to the stored data.
+The extraction implementation is maintained in the related [`supal/trafficdata`](https://github.com/supal/trafficdata) repository. This repository is the central research hub for the thesis: methods, reproducibility, analysis organization, results, data documentation, and the thesis document are maintained here.
 
-## Data Pipeline
+## Study dataset
 
-The data workflow consists of the following stages:
+The thesis analyzes **5,137 observations** from **eight measurement points** across **four Swedish counties**, covering **1998–2023**.
 
-### 1. Data input
+The analytical framework includes:
 
-One or more URLs from the Trafikverket traffic information system are provided as input to define the scope of data collection.
+- Speed Ratio (SR)
+- Delay Index (DI)
+- speed variability
+- free-flow speed based on the 95th percentile
+- traffic-flow regimes and empirical capacity
+- passenger-car versus heavy-vehicle comparisons
+- temporal and peak-hour analysis
+- spatial congestion/emission hotspot analysis
+- speed-dependent CO₂ modeling based on COPERT
 
-### 2. Automated extraction
+The thesis reports a mean Speed Ratio of **0.770**, **64.7%** of observations classified as moderate-to-severe congestion under the study's SR criterion, **96.2%** stable-flow observations under the study's coefficient-of-variation criterion, and an empirical capacity of approximately **1,500 vehicles/hour**.
 
-A Python-based scraper uses Selenium and a headless Chrome/Chromium browser to navigate the Trafikverket interface and retrieve historical traffic measurement data.
-
-### 3. Parsing and normalization
-
-The extracted information is transformed from the Swedish web interface and semi-structured presentation into structured records suitable for analysis. Data types, completeness, and consistency are validated during processing.
-
-### 4. Duplicate handling
-
-The extraction process is designed to be rerunnable. Duplicate records are checked before insertion so that repeated extraction runs do not unnecessarily introduce redundant records.
-
-### 5. Database storage
-
-Processed records are stored in PostgreSQL in the `traffic_data` database/table structure. The stored data include measurement timestamps, location information, vehicle counts, average speeds, vehicle categories, and audit metadata.
-
-## Analytical Framework
-
-The empirical analysis is based on **5,137 observations** from **eight measurement points** across **four Swedish counties**, covering the period **1998–2023**.
-
-Three congestion indicators are constructed and analyzed:
-
-- **Speed Ratio (SR)**
-- **Delay Index (DI)**
-- **Speed Variability**
-
-Free-flow speed is estimated using a **95th-percentile methodology**, providing a statistical reference for evaluating observed traffic speeds.
-
-The analysis examines:
-
-- spatial congestion patterns and hotspots
-- temporal variation in traffic conditions
-- peak-hour behavior
-- differences between passenger cars and heavy vehicles
-- flow-speed relationships and traffic regimes
-- relationships between congestion severity and emissions
-
-## Environmental Analysis
-
-The thesis extends the traffic analysis to environmental impacts by integrating congestion indicators with **speed-dependent CO₂ emission modeling based on the COPERT methodology**.
-
-The analysis identifies a non-linear relationship between congestion severity and emission intensity, with severe congestion associated with disproportionately higher per-vehicle emissions. Spatial analysis is also used to identify locations where congestion and emissions form notable hotspots.
-
-## MCP Server Prototype
-
-The project includes a prototype **Model Context Protocol (MCP) server** that exposes structured historical traffic data through parameterized queries.
-
-The prototype enables an AI client to retrieve traffic information based on attributes such as:
-
-- location
-- vehicle type
-- time interval
-- vehicle counts
-- vehicle speeds
-
-The MCP component is presented in the thesis as a practical prototype that complements the main research contributions rather than as the primary evaluated contribution.
-
-## Main Findings
-
-The thesis reports several important findings, including:
-
-- persistent moderate congestion in the analyzed observations
-- systematic differences between passenger cars and heavy vehicles
-- meaningful temporal variation in traffic conditions
-- clear transitions between uncongested, transitional, and breakdown traffic regimes
-- disproportionately higher emission intensity under severe congestion
-- spatial concentration of congestion-emission hotspots
-
-The diagnostic analysis reports an empirical capacity of approximately **1,500 vehicles/hour**, a mean Speed Ratio of **0.770**, and **64.7%** of observations classified as moderate-to-severe congestion using the study's SR threshold. The analysis also reports that **96.2%** of observations exhibit stable flow according to the study's coefficient-of-variation criterion.
-
-## Repository Structure
-
-The main repository is intended to become the central research and documentation hub for the thesis.
+## Repository structure
 
 ```text
 Trafikverket-Sensor-Data-Analysis/
-│
 ├── README.md
 ├── LICENSE
 ├── CITATION.cff
 ├── .gitignore
-│
+├── requirements.txt
 ├── docs/
+│   ├── README.md
 │   ├── research-questions.md
 │   ├── methodology.md
 │   ├── data-source.md
 │   ├── data-pipeline.md
 │   ├── analysis-methods.md
-│   └── reproducibility.md
-│
+│   ├── traffic-data-schema.md
+│   ├── reproducibility.md
+│   └── quality-assurance.md
 ├── analysis/
+│   ├── README.md
 │   ├── notebooks/
 │   └── scripts/
-│
 ├── results/
+│   ├── README.md
 │   ├── figures/
-│   ├── tables/
-│   └── README.md
-│
+│   └── tables/
 ├── data/
 │   └── README.md
-│
 ├── mcp/
 │   └── README.md
-│
-├── thesis/
-│   └── thesis.pdf
-│
-└── requirements.txt
+└── thesis/
+    └── thesis.pdf
 ```
 
-> **Note:** The structure above is the planned organization of the research repository. Files and directories will be added progressively as the project is reorganized.
+The directories are organized by research function rather than by development history. Generated databases, credentials, virtual environments, caches, compiled files, and other machine-specific artifacts are intentionally excluded from version control.
 
-## Related Data Extraction Repository
+## Data pipeline
 
-The automated Trafikverket extraction component is maintained in the related repository:
+The extraction workflow uses user-provided Trafikverket URLs to select historical measurement records. Selenium renders the web interface, the scraper extracts measurement data and page metadata, values are normalized, duplicate records are checked, and the resulting records are stored in PostgreSQL.
 
-**[supal/trafficdata](https://github.com/supal/trafficdata)**
+The stored schema includes measurement time, county, road number, measurement-point number, vehicle counts, average speeds, vehicle categories, and record creation metadata.
 
-That repository contains the Python scraper, command-line helpers, setup scripts, dependency definitions, input URL configuration, and PostgreSQL integration used for data extraction.
+See [`docs/data-pipeline.md`](docs/data-pipeline.md), [`docs/data-source.md`](docs/data-source.md), and [`docs/traffic-data-schema.md`](docs/traffic-data-schema.md).
 
-This separation keeps the extraction software focused on **data acquisition**, while this repository serves as the broader **thesis research, analysis, results, and documentation hub**.
+## Analysis and results
+
+The analysis connects the extracted traffic data to congestion indicators, traffic-flow diagnostics, vehicle-type comparisons, temporal patterns, spatial hotspots, and speed-dependent CO₂ estimates.
+
+The thesis contains the complete set of reported figures. The repository's `results/` area is reserved for reproducible, clearly labeled figure and table exports; figures should be generated from documented analysis code rather than manually edited screenshots whenever source code is available.
+
+## MCP prototype
+
+A TypeScript/Node.js MCP server is included in the related technical repository. It provides parameterized access to the PostgreSQL traffic database and prototype analytical tools for querying traffic statistics, locations, dates, vehicle categories, speeds, and counts.
+
+The MCP component is a **supporting prototype**, not the primary evaluated research contribution. The primary contributions are the historical data pipeline and the congestion/traffic-flow/emissions analysis.
 
 ## Reproducibility
 
-Reproducibility is a central goal of the project. The workflow is designed so that traffic data can be extracted repeatedly, transformed into a structured format, stored centrally, and subsequently analyzed using documented methods.
+The project documents the complete conceptual workflow from Trafikverket extraction through PostgreSQL storage and downstream analysis. Reproduction requires access to the Trafikverket source interface, a compatible browser/Selenium environment, PostgreSQL, and the analysis environment.
 
-The extraction component supports rerunnable processing and duplicate detection. The analytical workflow is based on explicitly defined congestion indicators and a documented emission-modeling approach.
+Database credentials must be supplied through local configuration or environment variables and must never be committed to Git.
 
-As the repository is reorganized, environment specifications, analysis notebooks/scripts, methodological documentation, and reproducibility instructions will be added here.
+See [`docs/reproducibility.md`](docs/reproducibility.md).
 
-## Data Availability and Responsible Use
+## Related repositories
 
-The thesis analyzes historical traffic information obtained from Trafikverket's public traffic information system. The repository will document the data source and analytical workflow without unnecessarily committing large generated datasets or environment-specific database contents to version control.
+- **Data extraction and MCP implementation:** https://github.com/supal/trafficdata
+- **Main thesis research repository:** https://github.com/NiR920/Trafikverket-Sensor-Data-Analysis
 
-Database credentials, local configuration, and other secrets should **never** be committed to the repository.
+The two repositories should be treated as one thesis project with different responsibilities: `supal/trafficdata` contains the executable acquisition/MCP implementation, while this repository provides the research record and public-facing organization.
 
 ## Thesis
 
-**Title:** *Congestion and Traffic Flow Analysis Using Trafikverket Sensor Data*
-
+**Title:** *Congestion and Traffic Flow Analysis Using Trafikverket Sensor Data*  
 **Authors:** Md Nazmul Islam Razib and Md Ariful Ahsan  
 **Degree:** Master of Science (MSc) in Business Intelligence  
 **Subject:** Microdata Analysis (Business Intelligence)  
 **University:** Dalarna University  
-**Course code:** MI4002  
+**Course:** MI4002  
 **Credits:** 15
 
-The thesis PDF is currently included in this repository and will be organized under `thesis/thesis.pdf` as part of the repository restructuring.
+The submitted thesis PDF is retained in the repository under its original uploaded filename. It is not renamed automatically because the GitHub file API available for this project cannot safely perform a binary-file move without re-uploading the complete PDF.
 
-## Technology Stack
+## Technology stack
 
 | Area | Technology |
 |---|---|
 | Data extraction | Python, Selenium, Pandas |
 | Database | PostgreSQL |
-| Analysis | Python |
-| Visualization | Power BI |
+| Analysis | Python, Jupyter |
+| Visualization | Power BI and Python-based analysis |
 | AI data access | MCP, TypeScript, Node.js |
 | Version control | Git / GitHub |
 
-## Project Status
+## Project status
 
-The research and thesis work are completed. The GitHub repository is currently being reorganized to provide a clearer, professional, and reproducible presentation of the work.
+The research and thesis work are completed. The repositories are being maintained as a professional, reproducible record of the completed work. Organization focuses on preserving the original implementation and reported results while separating research artifacts from local/development artifacts.
 
-Planned repository improvements include:
+## License and citation
 
-- structured documentation
-- analysis notebooks and scripts
-- methodology documentation
-- reproducibility instructions
-- result organization
-- MCP documentation
-- citation and licensing information
-
-## Academic Context
-
-This repository accompanies the thesis submitted to **Dalarna University** as part of the MSc in Business Intelligence program. The project integrates data engineering, traffic-flow analysis, environmental assessment, visualization, and an AI-assisted data-access prototype into a single analytical workflow.
+The repository includes an MIT license for the software/repository materials and a `CITATION.cff` file for citation metadata. The thesis document remains the authors' academic work; repository licensing should not be interpreted as changing the university's or authors' rights to the thesis text.
